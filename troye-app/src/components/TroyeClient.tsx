@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import QRCode from "qrcode.react";
-import { Button } from "@chakra-ui/react";
+import { Button, FormLabel, Input, SimpleGrid, Text, Flex } from "@chakra-ui/react";
 
 import { importWebAuthnPublicKey, signAndVerify, verifyPublicKeyAndSignature } from "@/helpers/verify";
 import { credentialCreationOptions } from "@/helpers/webauthn";
-import { bufferToBase64url } from "@/helpers/buffers";
 
 export const TroyeClient: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -50,6 +49,7 @@ export const TroyeClient: React.FC = () => {
       // }
 
       const obtainedClientDataJSON = JSON.parse(new TextDecoder().decode(clientDataJSON));
+      console.log("Obtained Client DATA JSON", obtainedClientDataJSON);
 
       const clientDataHash = new Uint8Array(
         await crypto.subtle.digest("SHA-256",
@@ -80,7 +80,7 @@ export const TroyeClient: React.FC = () => {
   async function fetchLatestBlockchainHash() {
     //const client = getClient("http://your-rpc-endpoint:port");
     //const latestBlock = await client.getBlock("latest");
-    setBlockchainHash("hello");
+    setBlockchainHash("TODO");
   }
 
   async function signBlockchainHash() {
@@ -135,46 +135,48 @@ export const TroyeClient: React.FC = () => {
 
   return (
     <div>
-      <h1>WebAuthn and Blockchain Hash Signer</h1>
-      <label>
-        Username:
-        <input
+      <FormLabel>
+        <Text>Username</Text>
+        <Input
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
-      </label>
+      </FormLabel>
 
-      <Button onClick={createCredential}>Create WebAuthn Credential</Button>
+      <SimpleGrid spacing="2">
+        <Button onClick={createCredential}>Create WebAuthn Credential</Button>
 
-      <Button onClick={fetchLatestBlockchainHash}>
-        Fetch Latest Blockchain Hash
-      </Button>
+        <Button onClick={fetchLatestBlockchainHash}>
+          Fetch Latest Blockchain Hash
+        </Button>
 
-      {blockchainHash && <p>Latest Blockchain Hash: {blockchainHash}</p>}
+        {blockchainHash && <p>Latest Blockchain Hash: {blockchainHash}</p>}
 
-      <Button onClick={signBlockchainHash} disabled={!credential || !blockchainHash}>
-        Sign Blockchain Hash with WebAuthn Credential
-      </Button>
+        <Button onClick={signBlockchainHash} disabled={!credential || !blockchainHash}>
+          Sign Blockchain Hash with WebAuthn Credential
+        </Button>
 
-      <Button onClick={handleSignAndVerify} disabled={!signature || !publicKey}>
-        Sign and Verify
-      </Button>
+        <Button onClick={handleSignAndVerify} disabled={!signature || !publicKey}>
+          Verify WebAuthn Signed Payload and Create Key
+        </Button>
 
+        <SimpleGrid columns={[1,1,2,2]} spacing="2">
+          {signature && (
+            <Flex flexDirection="column" alignItems="center">
+              <Text>Signature</Text>
+              <QRCode value={signature.toString()} />
+            </Flex>
+          )}
 
-      {signature && (
-        <>
-          <h2>Signed Payload</h2>
-          <QRCode value={signature.toString()} />
-        </>
-      )}
-
-      {/* {publicKey && (
-        <>
-          <h2>Public Key</h2>
-          <QRCode value={publicKey} />
-        </>
-      )} */}
+          {publicKey && (
+            <Flex flexDirection="column" alignItems="center">
+              <Text>Public Key</Text>
+              <QRCode value={new TextDecoder().decode(publicKey)} />
+              </Flex>
+          )}
+        </SimpleGrid>
+      </SimpleGrid>
     </div>
   );
 
