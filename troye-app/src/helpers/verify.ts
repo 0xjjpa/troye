@@ -7,17 +7,19 @@ interface SignAndVerifyResult {
 export type Verification = {
   isValid: boolean,
   signature: Uint8Array,
+  authenticatorData: Uint8Array,
   data: Uint8Array
+  clientDataJSON: ArrayBuffer
 }
 
-export const verifyPublicKeyAndSignature = async (publicKey: ArrayBuffer, publicKeyWithAttestation: PublicKeyCredential): Promise<Verification> => {
+export const verifyPublicKeyAndSignature = async (publicKey: ArrayBuffer, publicKeyWithAttestation: PublicKeyCredential): Promise<Verification | undefined> => {
   // verify signature on server
   const response = publicKeyWithAttestation.response as AuthenticatorAssertionResponse;
   const signature = response.signature;
   console.log("SIGNATURE", signature)
 
   var clientDataJSON = publicKeyWithAttestation.response.clientDataJSON;
-  console.log("clientDataJSON", clientDataJSON)
+  console.log("** clientDataJSON", clientDataJSON, new TextDecoder().decode(clientDataJSON))
 
   var authenticatorData = new Uint8Array(response.authenticatorData);
   console.log("authenticatorData", authenticatorData)
@@ -59,11 +61,11 @@ export const verifyPublicKeyAndSignature = async (publicKey: ArrayBuffer, public
   // verified is now true!
   console.log('verified', verified)
 
-  return { isValid: verified, signature: rawSignature, data: signedData };
+  return { isValid: verified, signature: rawSignature, data: signedData, authenticatorData, clientDataJSON };
 }
 
 export async function signAndVerify(
-  blockchainHash: string,
+  signedData: Uint8Array,
   signature: ArrayBuffer,
   webAuthnPublicKey: CryptoKey
 ): Promise<SignAndVerifyResult> {
@@ -75,7 +77,7 @@ export async function signAndVerify(
     },
     webAuthnPublicKey,
     signature,
-    new TextEncoder().encode(blockchainHash)
+    signedData.buffer
   );
 
   // Generate a new P-256 key pair
