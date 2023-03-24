@@ -19,7 +19,6 @@
     "@emotion/styled": "^11.10.5",
     "@fontsource/lato": "^4.5.10",
     "@fontsource/playfair-display": "^4.5.13",
-    "@github/webauthn-json": "^2.1.1",
     "@next/font": "13.1.6",
     "@rainbow-me/rainbowkit": "^0.12.1",
     "@types/node": "18.11.18",

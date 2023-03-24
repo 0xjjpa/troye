@@ -1,71 +1,55 @@
 import React, { useState } from "react";
-import { CredentialRequestOptionsJSON, CredentialCreationOptionsJSON, create, get, PublicKeyCredentialWithAttestationJSON } from "@github/webauthn-json";
 import QRCode from "qrcode.react";
 import { Button } from "@chakra-ui/react";
 
+import { importWebAuthnPublicKey, signAndVerify, verifyPublicKeyAndSignature } from "@/helpers/verify";
+import { credentialCreationOptions } from "@/helpers/webauthn";
+
 export const TroyeClient: React.FC = () => {
   const [username, setUsername] = useState("");
-  const [credential, setCredential] = useState<PublicKeyCredentialWithAttestationJSON | null>(null);
+  const [credential, setCredential] = useState<PublicKeyCredential | null>(null);
   const [blockchainHash, setBlockchainHash] = useState("");
-  const [signedPayload, setSignedPayload] = useState<string | null>(null);
-  const [publicKey, setPublicKey] = useState<string | null>(null);
-
-  function bufferToBase64url(buffer: ArrayBuffer): string {
-    // Buffer to binary string
-    const byteView = new Uint8Array(buffer);
-    let str = '';
-    for (const charCode of byteView) {
-      str += String.fromCharCode(charCode);
-    }
-
-    // Binary string to base64
-    const base64String = btoa(str);
-
-    // Base64 to base64url
-    // We assume that the base64url string is well-formed.
-    const base64urlString = base64String
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
-    return base64urlString;
-  }
-
-  function randomBase64urlBytes(n: number = 32): string {
-    return bufferToBase64url(crypto.getRandomValues(new Uint8Array(n)));
-  }
+  const [signedPayload, setSignedPayload] = useState<Uint8Array | null>(null);
+  const [publicKey, setPublicKey] = useState<ArrayBuffer | null>(null);
 
   async function createCredential() {
-    const requestOptions: CredentialCreationOptionsJSON = {
-      publicKey: {
-        challenge: randomBase64urlBytes(),
-        rp: {
-          name: "Your App",
-        },
-        user: {
-          id: randomBase64urlBytes(),
-          name: username,
-          displayName: username,
-        },
-        pubKeyCredParams: [
-          {
-            type: "public-key",
-            alg: -7, // ES256 algorithm
-          },
-        ],
-        timeout: 60000,
-        attestation: "none",
-      }
-    }
-
     try {
-      const credential = await create(requestOptions);
+      const credential = (await navigator.credentials.create(
+        credentialCreationOptions(username)
+      )) as PublicKeyCredential;
       setCredential(credential);
       console.log(credential);
     } catch (err) {
       console.error("Error creating credential:", err);
     }
-
   }
+
+  async function handleSignAndVerify() {
+    if (!signedPayload || !publicKey || !credential) {
+      console.error("Missing signed payload or public key");
+      return;
+    }
+
+    try {
+      // Import the WebAuthn public key
+      // const webAuthnPublicKey = await importWebAuthnPublicKey(base64urlToBuffer(publicKey));
+
+      const verification = await verifyPublicKeyAndSignature(publicKey, credential);
+
+      console.log("Verification", verification)
+
+      // Perform the sign and verify operation
+      // const result = await signAndVerify(blockchainHash, base64urlToBuffer(signedPayload), webAuthnPublicKey);
+
+      // Handle the result (e.g., display the verified status, new signature, and new public key)
+      // console.log("Verification result:", result.verified);
+      // console.log("New signature:", result.newSignature);
+      // console.log("New P-256 public key:", result.p256PublicKey);
+    } catch (err) {
+      console.error("Error in sign and verify process:", err);
+    }
+  }
+
 
   async function fetchLatestBlockchainHash() {
     //const client = getClient("http://your-rpc-endpoint:port");
@@ -79,9 +63,9 @@ export const TroyeClient: React.FC = () => {
       return;
     }
 
-    const requestOptions: CredentialRequestOptionsJSON = {
+    const requestOptions: CredentialRequestOptions = {
       publicKey: {
-        challenge: randomBase64urlBytes(),
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
         allowCredentials: [
           {
             type: "public-key",
@@ -93,11 +77,25 @@ export const TroyeClient: React.FC = () => {
     }
 
     try {
-      const assertion = await get(requestOptions);
-      setSignedPayload(assertion.response.signature);
-      setPublicKey
-        (assertion.response.clientDataJSON.toString());
-      console.log(assertion);
+      // This is obtained only from the counterparty.
+      const assertion = (await navigator.credentials.get(
+        requestOptions
+      )) as PublicKeyCredential;
+
+      // This can only be obtained from the authenticator.
+      const publicKey = (credential.response as AuthenticatorAttestationResponse).getPublicKey();
+
+      if (!publicKey) {
+        console.error("Missing public key");
+        return;
+      }
+
+      // We verify the given public key matches the signed from the authenticator.
+      const verification = await verifyPublicKeyAndSignature(publicKey, assertion);
+      
+      setSignedPayload(verification.signature);
+      setPublicKey(publicKey);
+      console.log(publicKey);
     } catch (err) {
       console.error("Error signing blockchain hash:", err);
     }
@@ -127,6 +125,11 @@ export const TroyeClient: React.FC = () => {
         Sign Blockchain Hash with WebAuthn Credential
       </Button>
 
+      {/* <Button onClick={handleSignAndVerify} disabled={!signedPayload || !publicKey}>
+        Sign and Verify
+      </Button> */}
+
+
       {signedPayload && (
         <>
           <h2>Signed Payload</h2>
@@ -134,12 +137,12 @@ export const TroyeClient: React.FC = () => {
         </>
       )}
 
-      {publicKey && (
+      {/* {publicKey && (
         <>
           <h2>Public Key</h2>
           <QRCode value={publicKey} />
         </>
-      )}
+      )} */}
     </div>
   );
 
