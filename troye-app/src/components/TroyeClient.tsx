@@ -154,11 +154,11 @@ export const TroyeClient: React.FC = () => {
         {blockchainHash && <p>Latest Blockchain Hash: {blockchainHash}</p>}
 
         <Button onClick={signBlockchainHash} disabled={!credential || !blockchainHash}>
-          Sign Blockchain Hash with WebAuthn Credential
+          Sign Blockchain Hash with WebAuthn
         </Button>
 
         <Button onClick={handleSignAndVerify} disabled={!signature || !publicKey}>
-          Verify WebAuthn Signed Payload and Create Key
+          Verify WebAuthn Signed + Create Key
         </Button>
 
         <SimpleGrid columns={[1,1,2,2]} spacing="2">
