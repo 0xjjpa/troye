@@ -1,5 +1,6 @@
 import { Text, Flex } from '@chakra-ui/react';
 import Head from 'next/head'
+import { useRouter } from 'next/router';
 import QRCode from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
 import { useProvider, useBlockNumber } from 'wagmi';
@@ -10,17 +11,18 @@ interface ECDSAKeyPair {
 }
 
 interface QRPayload {
-  blockchainNumber: string;
+  blockchainNumber: number | undefined;
   signatureAsHex: string;
   publicKeyAsHex: string;
 }
 
 const KeyManager: React.FC = () => {
   const provider = useProvider();
+  const router = useRouter();
   const { data: blockNumber } = useBlockNumber({ watch: true })
 
   const [keyPair, setKeyPair] = useState<ECDSAKeyPair | null>(null);
-  const [qrPayload, setQRPayload] = useState<string | null>(null);
+  const [qrPayload, setQRPayload] = useState<QRPayload | null>(null);
 
   function buf2hex(buffer: ArrayBuffer) {
     return [...new Uint8Array(buffer)]
@@ -51,13 +53,13 @@ const KeyManager: React.FC = () => {
         const signedHash = await signText(hash)
         if (signedHash) {
           const signedHashAsHex = buf2hex(signedHash);
-          const qrPayload = {
+          const qrPayload: QRPayload = {
             blockchainNumber: blockNumber,
             signatureAsHex: signedHashAsHex,
-            publicKeyAsHex: exportPublicKeyAsHex(keyPair!)
+            publicKeyAsHex: await exportPublicKeyAsHex(keyPair!)
 
           }
-          setQRPayload(JSON.stringify(qrPayload));
+          setQRPayload(qrPayload);
         }
       }
     }
@@ -186,7 +188,7 @@ const KeyManager: React.FC = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main style={{ position: 'relative' }}>
-        <Text as="h1" fontSize="sm" color="gray.600" pos={"absolute"} right="5" top="0">Troye - Setup mode</Text>
+        <Text onClick={() => router.push('/')} as="h1" fontSize="sm" color="gray.600" pos={"absolute"} right="5" top="0">Troye - Setup mode</Text>
         <Flex
           maxW="50ch"
           direction="column"
@@ -201,7 +203,7 @@ const KeyManager: React.FC = () => {
         >
           {keyPair ? (
             <Flex alignItems="center">
-              <QRCode size={256} value={qrPayload || 'empty'} />
+              <QRCode size={256} value={JSON.stringify(qrPayload) || 'empty'} />
             </Flex>
           ) : (
             <p>Loading key pair...</p>

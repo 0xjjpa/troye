@@ -49,7 +49,7 @@ export default function Home() {
             />
             <IconButton
               w="fit-content"
-              outline={developerMode ? '2px solid #3182ce' : 'none'}
+              outline={showAvailableOptions ? '2px solid #3182ce' : 'none'}
               mx="auto"
               icon={<ViewIcon />}
               onClick={() => setAvailableOptions(!showAvailableOptions)}
