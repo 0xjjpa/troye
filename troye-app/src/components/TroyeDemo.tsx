@@ -5,7 +5,7 @@ import { Button, FormLabel, Input, SimpleGrid, Text, Flex } from "@chakra-ui/rea
 import { importWebAuthnPublicKey, signAndVerify, verifyPublicKeyAndSignature } from "@/helpers/verify";
 import { credentialCreationOptions } from "@/helpers/webauthn";
 
-export const TroyeClient: React.FC = () => {
+export const TroyeDemo: React.FC = () => {
   const [username, setUsername] = useState("");
   const [credential, setCredential] = useState<PublicKeyCredential | null>(null);
   const [blockchainHash, setBlockchainHash] = useState("");

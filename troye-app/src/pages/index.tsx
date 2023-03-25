@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { SunIcon, MoonIcon, SettingsIcon, ViewIcon } from '@chakra-ui/icons'
 import Head from 'next/head'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { TroyeClient } from '@/components/TroyeClient'
+import { TroyeDemo } from '@/components/TroyeDemo'
 import { useState } from 'react'
 
 
@@ -78,7 +78,7 @@ export default function Home() {
                 <Box>
                   <Heading mb="2" as="h3" fontFamily="mono" fontSize="md">Signature Workflow</Heading>
                   <Flex justify="center">
-                    <TroyeClient />
+                    <TroyeDemo />
                   </Flex>
                 </Box>
               </SimpleGrid>
@@ -96,6 +96,17 @@ export default function Home() {
                   <Flex justify="center">
                     <Button onClick={() => router.push('/setup')}>
                       Go to “Setup mode”
+                    </Button>
+                  </Flex>
+                </Box>
+                <Box mb="5">
+                  <Box p="2" mb="2">
+                    <Heading mb="2" as="h3" fontFamily="mono" fontSize="md">Earn mode</Heading>
+                    <Text>Used to start earning points by scanning QR codes from stores.</Text>
+                  </Box>
+                  <Flex justify="center">
+                    <Button onClick={() => router.push('/earn')}>
+                      Go to “Earn mode”
                     </Button>
                   </Flex>
                 </Box>

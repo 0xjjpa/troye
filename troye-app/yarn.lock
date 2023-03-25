@@ -1936,6 +1936,13 @@
     "@stablelib/random" "^1.0.2"
     "@stablelib/wipe" "^1.0.1"
 
+"@stevent-team/react-qr-hunter@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@stevent-team/react-qr-hunter/-/react-qr-hunter-0.0.2.tgz#537943d9e57bccef63e72846c536146bd04433a2"
+  integrity sha512-fc/E12qh4Hvx6+8AY6/64HClYFAU92xXal9H+OsbSrBn59uVMZ+QOeQcORkz+x6sakpyMjCZernqXENPZCBDtA==
+  dependencies:
+    qr-scanner "^1.4.1"
+
 "@swc/helpers@0.4.14":
   version "0.4.14"
   resolved "https://registry.yarnpkg.com/@swc/helpers/-/helpers-0.4.14.tgz#1352ac6d95e3617ccb7c1498ff019654f1e12a74"
@@ -2035,6 +2042,11 @@
   version "12.20.55"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.20.55.tgz#c329cbd434c42164f846b909bd6f85b5537f6240"
   integrity sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==
+
+"@types/offscreencanvas@^2019.6.4":
+  version "2019.7.0"
+  resolved "https://registry.yarnpkg.com/@types/offscreencanvas/-/offscreencanvas-2019.7.0.tgz#e4a932069db47bb3eabeb0b305502d01586fa90d"
+  integrity sha512-PGcyveRIpL1XIqK8eBsmRBt76eFgtzuPiSTyKHZxnGemp2yzGzWpjYKAfK3wIMiU7eH+851yEpiuP8JZerTmWg==
 
 "@types/parse-json@^4.0.0":
   version "4.0.0"
@@ -3369,6 +3381,11 @@ elliptic@6.5.4:
     inherits "^2.0.4"
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
+
+emoji-hash-gen@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/emoji-hash-gen/-/emoji-hash-gen-1.0.3.tgz#e4d70ad1fda5b8af9e7929a732f79e879f686ca3"
+  integrity sha512-qNBGdS2gutMUk/geLgaj74Gwxik9CR0qiCCTBoQkJdQ2oJq0siQKYj56LrDB/LuXG4tWZeIXD3USonzUMSHgog==
 
 emoji-regex@^8.0.0:
   version "8.0.0"
@@ -5216,6 +5233,13 @@ punycode@^2.1.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.3.0.tgz#f67fa67c94da8f4d0cfff981aee4118064199b8f"
   integrity sha512-rRV+zQD8tVFys26lAGR9WUuS4iUAngJScM+ZRSKtvl5tKeZ2t5bvdNFdNHBW9FWR4guGHlgmsZ1G7BSm2wTbuA==
+
+qr-scanner@^1.4.1:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/qr-scanner/-/qr-scanner-1.4.2.tgz#bc4fb88022a8c9be95c49527a1c8fb8724b47dc4"
+  integrity sha512-kV1yQUe2FENvn59tMZW6mOVfpq9mGxGf8l6+EGaXUOd4RBOLg7tRC83OrirM5AtDvZRpdjdlXURsHreAOSPOUw==
+  dependencies:
+    "@types/offscreencanvas" "^2019.6.4"
 
 qrcode.react@^3.1.0:
   version "3.1.0"

@@ -1,34 +1,23 @@
+import { Tagline } from '@/components/Tagline';
+import { buf2hex } from '@/helpers/buffers';
+import { exportPublicKeyAsHex } from '@/helpers/webcrypto';
+import { ECDSAKeyPair } from '@/types/keypair';
+import { QRPayload } from '@/types/qrcode';
 import { Text, Flex } from '@chakra-ui/react';
 import Head from 'next/head'
-import { useRouter } from 'next/router';
 import QRCode from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
 import { useProvider, useBlockNumber } from 'wagmi';
+const { getHash } = require("emoji-hash-gen");
 
-interface ECDSAKeyPair {
-  publicKey: CryptoKey;
-  privateKey: CryptoKey;
-}
 
-interface QRPayload {
-  blockchainNumber: number | undefined;
-  signatureAsHex: string;
-  publicKeyAsHex: string;
-}
-
-const KeyManager: React.FC = () => {
-  const provider = useProvider();
-  const router = useRouter();
+const Setup: React.FC = () => {
+  const provider = useProvider();  
   const { data: blockNumber } = useBlockNumber({ watch: true })
 
   const [keyPair, setKeyPair] = useState<ECDSAKeyPair | null>(null);
   const [qrPayload, setQRPayload] = useState<QRPayload | null>(null);
-
-  function buf2hex(buffer: ArrayBuffer) {
-    return [...new Uint8Array(buffer)]
-      .map(x => x.toString(16).padStart(2, '0'))
-      .join('');
-  }
+  const [publicKeyAsHex, setPublicKeyAsHex] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAndLoadKey = async () => {
@@ -53,10 +42,12 @@ const KeyManager: React.FC = () => {
         const signedHash = await signText(hash)
         if (signedHash) {
           const signedHashAsHex = buf2hex(signedHash);
+          const publicKeyAsHex = await exportPublicKeyAsHex(keyPair!);
+          setPublicKeyAsHex(publicKeyAsHex);
           const qrPayload: QRPayload = {
             blockchainNumber: blockNumber,
             signatureAsHex: signedHashAsHex,
-            publicKeyAsHex: await exportPublicKeyAsHex(keyPair!)
+            publicKeyAsHex
 
           }
           setQRPayload(qrPayload);
@@ -69,11 +60,6 @@ const KeyManager: React.FC = () => {
   async function fetchLatestBlockchainHash() {
     const block = await provider.getBlock('latest')
     return block.hash;
-  }
-
-  async function exportPublicKeyAsHex(keyPair: ECDSAKeyPair) {
-    const exported = await crypto.subtle.exportKey('raw', keyPair.publicKey);
-    return buf2hex(exported);
   }
 
   const getKeyFromIndexDB = async (): Promise<ECDSAKeyPair | null> => {
@@ -182,13 +168,13 @@ const KeyManager: React.FC = () => {
   return (
     <>
       <Head>
-        <title>Troye - Earn</title>
+        <title>Troye - Setup</title>
         <meta name="description" content="Troye is a platform to create loyalty programs" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main style={{ position: 'relative' }}>
-        <Text onClick={() => router.push('/')} as="h1" fontSize="sm" color="gray.600" pos={"absolute"} right="5" top="0">Troye - Setup mode</Text>
+        <Tagline label="Troye - Setup mode" />
         <Flex
           maxW="50ch"
           direction="column"
@@ -202,8 +188,9 @@ const KeyManager: React.FC = () => {
           alignItems="center"
         >
           {keyPair ? (
-            <Flex alignItems="center">
+            <Flex alignItems="center" mt="20" direction="column">
               <QRCode size={256} value={JSON.stringify(qrPayload) || 'empty'} />
+              <Text mt="10" fontSize="4xl" letterSpacing="10px">{getHash(publicKeyAsHex || 'empty')}</Text>
             </Flex>
           ) : (
             <p>Loading key pair...</p>
@@ -214,4 +201,4 @@ const KeyManager: React.FC = () => {
   );
 };
 
-export default KeyManager;
+export default Setup;
