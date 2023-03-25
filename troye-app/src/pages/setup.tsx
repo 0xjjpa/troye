@@ -1,14 +1,32 @@
-import { Flex } from '@chakra-ui/react';
+import { Text, Flex } from '@chakra-ui/react';
 import Head from 'next/head'
+import QRCode from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
+import { useProvider, useBlockNumber } from 'wagmi';
 
 interface ECDSAKeyPair {
   publicKey: CryptoKey;
   privateKey: CryptoKey;
 }
 
+interface QRPayload {
+  blockchainNumber: string;
+  signatureAsHex: string;
+  publicKeyAsHex: string;
+}
+
 const KeyManager: React.FC = () => {
+  const provider = useProvider();
+  const { data: blockNumber } = useBlockNumber({ watch: true })
+
   const [keyPair, setKeyPair] = useState<ECDSAKeyPair | null>(null);
+  const [qrPayload, setQRPayload] = useState<string | null>(null);
+
+  function buf2hex(buffer: ArrayBuffer) {
+    return [...new Uint8Array(buffer)]
+      .map(x => x.toString(16).padStart(2, '0'))
+      .join('');
+  }
 
   useEffect(() => {
     const checkAndLoadKey = async () => {
@@ -24,6 +42,37 @@ const KeyManager: React.FC = () => {
       checkAndLoadKey();
     }
   }, []);
+
+  useEffect(() => {
+    console.log("Block number changed", blockNumber);
+    const loadLatestBlockchainHash = async () => {
+      if (provider) {
+        const hash = await fetchLatestBlockchainHash();
+        const signedHash = await signText(hash)
+        if (signedHash) {
+          const signedHashAsHex = buf2hex(signedHash);
+          const qrPayload = {
+            blockchainNumber: blockNumber,
+            signatureAsHex: signedHashAsHex,
+            publicKeyAsHex: exportPublicKeyAsHex(keyPair!)
+
+          }
+          setQRPayload(JSON.stringify(qrPayload));
+        }
+      }
+    }
+    keyPair?.privateKey && loadLatestBlockchainHash();
+  }, [blockNumber]);
+
+  async function fetchLatestBlockchainHash() {
+    const block = await provider.getBlock('latest')
+    return block.hash;
+  }
+
+  async function exportPublicKeyAsHex(keyPair: ECDSAKeyPair) {
+    const exported = await crypto.subtle.exportKey('raw', keyPair.publicKey);
+    return buf2hex(exported);
+  }
 
   const getKeyFromIndexDB = async (): Promise<ECDSAKeyPair | null> => {
     return new Promise(async (resolve) => {
@@ -125,7 +174,7 @@ const KeyManager: React.FC = () => {
       data
     );
 
-    console.log('Signature:', new Uint8Array(signature));
+    return signature;
   };
 
   return (
@@ -136,7 +185,8 @@ const KeyManager: React.FC = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>
+      <main style={{ position: 'relative' }}>
+        <Text as="h1" fontSize="sm" color="gray.600" pos={"absolute"} right="5" top="0">Troye - Setup mode</Text>
         <Flex
           maxW="50ch"
           direction="column"
@@ -147,15 +197,12 @@ const KeyManager: React.FC = () => {
           gap={4}
           borderRadius="xl"
           mt={8}
+          alignItems="center"
         >
-          <h1>ECDSA P256 KeyManager</h1>
           {keyPair ? (
-            <>
-              <p>Key pair loaded.</p>
-              <button onClick={() => signText('Arbitrary text')}>
-                Sign arbitrary text
-              </button>
-            </>
+            <Flex alignItems="center">
+              <QRCode size={256} value={qrPayload || 'empty'} />
+            </Flex>
           ) : (
             <p>Loading key pair...</p>
           )}
@@ -166,4 +213,3 @@ const KeyManager: React.FC = () => {
 };
 
 export default KeyManager;
-

@@ -10,46 +10,24 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createClient, WagmiConfig } from 'wagmi';
 import {
-  arbitrum,
-  arbitrumGoerli,
-  baseGoerli,
-  gnosis,
-  goerli,
-  hardhat,
-  localhost,
-  mainnet,
   optimism,
   optimismGoerli,
-  polygon,
-  polygonZkEvmTestnet,
-  sepolia,
 } from 'wagmi/chains';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 
 const { chains, provider } = configureChains(
   [
-    arbitrum,
-    arbitrumGoerli,
-    baseGoerli,
-    gnosis,
-    goerli,
-    hardhat,
-    localhost,
-    mainnet,
     optimism,
-    optimismGoerli,
-    polygon,
-    polygonZkEvmTestnet,
-    sepolia,  
+    optimismGoerli,  
   ],
   [
-    alchemyProvider({ apiKey: process.env.ALCHEMY_ID || "" }),
+    alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID || "" }),
     publicProvider()
   ]
 );
 const { connectors } = getDefaultWallets({
-  appName: 'nextjs-chakraui-rainbow-template',
+  appName: 'Troye',
   chains
 });
 const wagmiClient = createClient({

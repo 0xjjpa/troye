@@ -90,12 +90,12 @@ export default function Home() {
               <SimpleGrid columns={[1, 1, 1, 1]}>
                 <Box mb="5">
                   <Box p="2" mb="2">
-                    <Heading mb="2" as="h3" fontFamily="mono" fontSize="md">Earn mode</Heading>
-                    <Text>Used for stores to display their loyalty QR codes for customers to scan.</Text>
+                    <Heading mb="2" as="h3" fontFamily="mono" fontSize="md">Setup mode</Heading>
+                    <Text>Used to setup in stores the loyalty QR codes for customers to scan.</Text>
                   </Box>
                   <Flex justify="center">
-                    <Button onClick={() => router.push('/earn')}>
-                      Go to “Earn mode”
+                    <Button onClick={() => router.push('/setup')}>
+                      Go to “Setup mode”
                     </Button>
                   </Flex>
                 </Box>
