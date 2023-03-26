@@ -32,11 +32,14 @@ const Earn = () => {
     const loadVerification = async () => {
       const verification = await verifyPublicKeyAndSignature(troyePublicKey, assertion);
       console.log("Verification", verification);
+      if (verification && verification.isValid) {
+        setVerification(verification)
+      }
     }
     if (troyePublicKey && assertion) {
       loadVerification();
     }
-    return(() => {
+    return (() => {
       setVerification(null);
     })
   }, [assertion]);
@@ -45,12 +48,18 @@ const Earn = () => {
     if (qrcodePayload) {
       setPublicKeyAsHexAndHashed(getHash(qrcodePayload.publicKeyAsHex || 'empty'));
     }
+    return (() => {
+      setPublicKeyAsHexAndHashed(null);
+    })
   }, [qrcodePayload]);
 
   useEffect(() => {
     if (troyePublicKey) {
       setTroyePublicKeyAsHexHashed(getHash(buf2hex(troyePublicKey)));
     }
+    return (() => {
+      setTroyePublicKeyAsHexHashed(null);
+    })
   }, [troyePublicKey]);
 
   return (
@@ -97,6 +106,10 @@ const Earn = () => {
                 setAssertion={setAssertion}
               />
             </Flex>
+          }
+          {
+            verification?.isValid &&
+            <Button colorScheme="green">Send Signed Troye Proof</Button>
           }
         </Flex>
       </main>
