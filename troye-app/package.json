@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "typechain": "npx typechain --target ethers-v5 --out-dir src/generated 'src/constants/abis/AttestationStation.json'",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write ."
@@ -22,7 +23,6 @@
     "@next/font": "13.1.6",
     "@rainbow-me/rainbowkit": "^0.12.1",
     "@stevent-team/react-qr-hunter": "^0.0.2",
-    "@wagmi/core": "^0.10.6",
     "emoji-hash-gen": "^1.0.3",
     "eslint": "8.32.0",
     "eslint-config-next": "13.1.6",

@@ -10,6 +10,8 @@ import { useEffect, useState } from "react";
 const { getHash } = require("emoji-hash-gen");
 
 const Earn = () => {
+  const [isLoading, setLoading] = useState(false);
+  const [data, setDataResponse] = useState<string | null>(null);
   const [isCameraDisplayed, setIsCameraDisplayed] = useState(false);
   const [qrcodeValue, setQRCodeValue] = useState<string | null>(null);
   const [qrcodePayload, setQRCodePayload] = useState<QRPayload | null>(null);
@@ -63,7 +65,8 @@ const Earn = () => {
   }, [troyePublicKey]);
 
   async function sendVerification() {
-    try {  
+    try {
+      setLoading(true);
       // Send a POST request to the API endpoint
       const response = await fetch('/api/earn', {
         method: 'POST',
@@ -71,16 +74,18 @@ const Earn = () => {
           'Content-Type': 'application/json',
         },
         // ArrayBuffers are not serializable, so we need to convert them to strings
-        body: JSON.stringify({ ...verification, clientDataJSON: buf2hex(verification.clientDataJSON) }),
+        body: JSON.stringify({ ...verification, clientDataJSON: buf2hex(verification.clientDataJSON), troyePublicKeyAsHexHashed }),
       });
   
       // Parse the response as JSON
       const data = await response.json();
-  
+      setDataResponse(JSON.stringify(data));
       // Log the response message
       console.log('Response:', data.message);
+      setLoading(false);
     } catch (error) {
       console.error('Error sending payload:', error);
+      setLoading(false);
     }
   }
 
@@ -131,7 +136,10 @@ const Earn = () => {
           }
           {
             verification?.isValid &&
-            <Button onClick={sendVerification} colorScheme="green">Send Signed Troye Proof</Button>
+            <>
+            <Button isLoading={isLoading} onClick={sendVerification} colorScheme="green">Send Signed Troye Proof</Button>
+            <Text>{data && 'Signed submission sent'}</Text>
+            </>
           }
         </Flex>
       </main>
