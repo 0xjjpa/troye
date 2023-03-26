@@ -62,6 +62,28 @@ const Earn = () => {
     })
   }, [troyePublicKey]);
 
+  async function sendVerification() {
+    try {  
+      // Send a POST request to the API endpoint
+      const response = await fetch('/api/earn', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // ArrayBuffers are not serializable, so we need to convert them to strings
+        body: JSON.stringify({ ...verification, clientDataJSON: buf2hex(verification.clientDataJSON) }),
+      });
+  
+      // Parse the response as JSON
+      const data = await response.json();
+  
+      // Log the response message
+      console.log('Response:', data.message);
+    } catch (error) {
+      console.error('Error sending payload:', error);
+    }
+  }
+
   return (
     <>
       <Head>
@@ -109,7 +131,7 @@ const Earn = () => {
           }
           {
             verification?.isValid &&
-            <Button colorScheme="green">Send Signed Troye Proof</Button>
+            <Button onClick={sendVerification} colorScheme="green">Send Signed Troye Proof</Button>
           }
         </Flex>
       </main>
