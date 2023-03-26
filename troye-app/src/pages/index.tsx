@@ -36,7 +36,7 @@ export default function Home() {
         >
           <Heading as="h1">Troye</Heading>
           <Text>Troye is a platform to create loyalty programs by setting up
-            physical "checkpoints" any store or restaurant can use to reward
+            physical “checkpoints” any store or restaurant can use to reward
             their most recurring customers.
           </Text>
           <Flex mb="10">
