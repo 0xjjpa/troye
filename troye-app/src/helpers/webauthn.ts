@@ -1,3 +1,9 @@
+export type WebauthnChallenge = {
+  type: string, //usually 'webauthn.get'
+  challenge: string
+  origin: string //usually the origin of the webauthn request
+}
+
 export const publicKeyCredentialCreationOptions: (username: string) => PublicKeyCredentialCreationOptions = (username: string) => ({
   challenge: crypto.getRandomValues(new Uint8Array(32)),
   rp: {
