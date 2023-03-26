@@ -1,8 +1,9 @@
 import { buf2hex, hex2buf } from "@/helpers/buffers";
+import { Verification } from "@/helpers/verify";
 import { Button } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 
-export const TroyeId = ({ username, publicKeyAsHex, qrPayloadAsUint8Array, setTroyePublicKey }: { username: string, publicKeyAsHex: string, qrPayloadAsUint8Array: Uint8Array, setTroyePublicKey: (ArrayBuffer) => void }) => {
+export const TroyeId = ({ username, publicKeyAsHex, qrPayloadAsUint8Array, setTroyePublicKey, setAssertion }: { username: string, publicKeyAsHex: string, qrPayloadAsUint8Array: Uint8Array, setTroyePublicKey: (ArrayBuffer) => void, setAssertion: (PublicKeyCredential) => void }) => {
   const [rawId, setRawId] = useState<string | null>(null);
 
   const createCredential = async () => {
@@ -63,6 +64,8 @@ export const TroyeId = ({ username, publicKeyAsHex, qrPayloadAsUint8Array, setTr
       })) as PublicKeyCredential;
 
       console.log("Attestation:", assertion);
+      setAssertion(assertion);
+
     } catch (error) {
       console.error("Error getting credential:", error);
     }

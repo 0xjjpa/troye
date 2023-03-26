@@ -2,6 +2,7 @@ import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { Tagline } from "@/components/Tagline";
 import { TroyeId } from "@/components/TroyeId";
 import { buf2hex } from "@/helpers/buffers";
+import { Verification, verifyPublicKeyAndSignature } from "@/helpers/verify";
 import { QRPayload } from "@/types/qrcode";
 import { Flex, Button, Text } from "@chakra-ui/react";
 import Head from 'next/head'
@@ -15,6 +16,8 @@ const Earn = () => {
   const [publicKeyAsHexAndHashed, setPublicKeyAsHexAndHashed] = useState<string | null>(null);
   const [troyePublicKey, setTroyePublicKey] = useState<ArrayBuffer | null>(null);
   const [troyePublicKeyAsHexHashed, setTroyePublicKeyAsHexHashed] = useState<string | null>(null);
+  const [assertion, setAssertion] = useState<PublicKeyCredential | null>(null);
+  const [verification, setVerification] = useState<Verification | null>(null);
 
   useEffect(() => {
     if (qrcodeValue) {
@@ -24,6 +27,19 @@ const Earn = () => {
       setIsCameraDisplayed(false);
     }
   }, [qrcodeValue]);
+
+  useEffect(() => {
+    const loadVerification = async () => {
+      const verification = await verifyPublicKeyAndSignature(troyePublicKey, assertion);
+      console.log("Verification", verification);
+    }
+    if (troyePublicKey && assertion) {
+      loadVerification();
+    }
+    return(() => {
+      setVerification(null);
+    })
+  }, [assertion]);
 
   useEffect(() => {
     if (qrcodePayload) {
@@ -78,6 +94,7 @@ const Earn = () => {
                 username={publicKeyAsHexAndHashed}
                 qrPayloadAsUint8Array={new TextEncoder().encode(JSON.stringify(qrcodePayload))}
                 setTroyePublicKey={setTroyePublicKey}
+                setAssertion={setAssertion}
               />
             </Flex>
           }
