@@ -1,6 +1,7 @@
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { Tagline } from "@/components/Tagline";
 import { TroyeId } from "@/components/TroyeId";
+import { buf2hex } from "@/helpers/buffers";
 import { QRPayload } from "@/types/qrcode";
 import { Flex, Button, Text } from "@chakra-ui/react";
 import Head from 'next/head'
@@ -8,16 +9,19 @@ import { useEffect, useState } from "react";
 const { getHash } = require("emoji-hash-gen");
 
 const Earn = () => {
-  const [isCameraDisplayed, setIsCameraDisplayed] = useState(false); 
+  const [isCameraDisplayed, setIsCameraDisplayed] = useState(false);
   const [qrcodeValue, setQRCodeValue] = useState<string | null>(null);
   const [qrcodePayload, setQRCodePayload] = useState<QRPayload | null>(null);
   const [publicKeyAsHexAndHashed, setPublicKeyAsHexAndHashed] = useState<string | null>(null);
+  const [troyePublicKey, setTroyePublicKey] = useState<ArrayBuffer | null>(null);
+  const [troyePublicKeyAsHexHashed, setTroyePublicKeyAsHexHashed] = useState<string | null>(null);
 
   useEffect(() => {
     if (qrcodeValue) {
       const payload = JSON.parse(qrcodeValue) as QRPayload;
       console.log("Payload", payload);
       setQRCodePayload(payload);
+      setIsCameraDisplayed(false);
     }
   }, [qrcodeValue]);
 
@@ -26,6 +30,12 @@ const Earn = () => {
       setPublicKeyAsHexAndHashed(getHash(qrcodePayload.publicKeyAsHex || 'empty'));
     }
   }, [qrcodePayload]);
+
+  useEffect(() => {
+    if (troyePublicKey) {
+      setTroyePublicKeyAsHexHashed(getHash(buf2hex(troyePublicKey)));
+    }
+  }, [troyePublicKey]);
 
   return (
     <>
@@ -55,12 +65,19 @@ const Earn = () => {
             <Flex direction="column" height="50vh" justifyContent="space-around">
               <Flex direction="column">
                 <Text fontSize="4xl">{publicKeyAsHexAndHashed}</Text>
-                <Text color="gray.400" fontSize="sm">Public Identifier</Text>
+                <Text color="gray.400" fontSize="sm">Store Public Identifier</Text>
               </Flex>
+              {troyePublicKeyAsHexHashed &&
+                <Flex direction="column">
+                  <Text fontSize="4xl">{troyePublicKeyAsHexHashed}</Text>
+                  <Text color="gray.400" fontSize="sm">Your Troye Id Public Identifier</Text>
+                </Flex>
+              }
               <TroyeId
                 publicKeyAsHex={qrcodePayload.publicKeyAsHex}
                 username={publicKeyAsHexAndHashed}
                 qrPayloadAsUint8Array={new TextEncoder().encode(JSON.stringify(qrcodePayload))}
+                setTroyePublicKey={setTroyePublicKey}
               />
             </Flex>
           }
