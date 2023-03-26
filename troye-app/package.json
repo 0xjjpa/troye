@@ -8,7 +8,6 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "typechain": "npx typechain --target ethers-v5 --out-dir src/generated 'src/constants/abis/AttestationStation.json'",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write ."
@@ -35,12 +34,10 @@
     "wagmi": "^0.12.6"
   },
   "devDependencies": {
-    "@typechain/ethers-v5": "^10.2.0",
     "@types/node": "18.11.18",
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
     "prettier": "^2.8.3",
-    "typechain": "^8.1.1",
     "typescript": "4.9.4"
   }
 }
